@@ -1,0 +1,822 @@
+body {
+    background: #1e1e1e;
+    /* Darker app background */
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    color: #f0f0f0;
+}
+
+.app-container {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    overflow: hidden;
+    height: 100%;
+}
+
+/* Toolbar */
+.toolbar {
+    min-height: 85px;
+    /* Increased to fit labels and prevent clipping */
+    background: #252526;
+    color: white;
+    display: flex;
+    align-items: center;
+    padding: 10px 20px;
+    gap: 8px;
+    flex-shrink: 0;
+    flex-wrap: wrap;
+    /* allow wrapping on small screens */
+    border-bottom: 1px solid #333;
+}
+
+.logo {
+    font-weight: bold;
+    font-size: 36px;
+    margin-right: 20px;
+    color: #4cc2ff;
+}
+
+.version {
+    font-size: 20px;
+    color: #888;
+    margin-left: 5px;
+    font-weight: normal;
+    vertical-align: middle;
+}
+
+.update-date {
+    font-size: 18px;
+    color: #666;
+    margin-left: 10px;
+    font-weight: normal;
+    vertical-align: middle;
+}
+
+.toolbar-actions {
+    display: flex;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.toolbar-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border: 1px solid #444;
+    border-radius: 4px;
+    background: #2d2d2d;
+}
+
+.toolbar-buttons {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.group-label {
+    font-size: 11px;
+    color: #888;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.project-path-display {
+    font-size: 14px;
+    color: #4cc2ff;
+    font-family: 'Consolas', monospace;
+    margin-top: 4px;
+    background: #1e1e1e;
+    padding: 2px 8px;
+    border-radius: 3px;
+    border: 1px solid #444;
+}
+
+.toolbar button,
+.toolbar label,
+.toolbar select {
+    background: #3c3c3c;
+    border: 1px solid #555;
+    color: #f0f0f0;
+    padding: 6px 16px;
+    cursor: pointer;
+    border-radius: 4px;
+    font-size: 15px;
+    /* Increased from 13px */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    font-family: inherit;
+    white-space: nowrap;
+    height: 38px;
+    min-width: 120px;
+    /* Uniform width for all buttons as requested */
+    box-sizing: border-box;
+}
+
+/* Color classes for toolbar buttons */
+.btn-orange {
+    background: #e67e22 !important;
+    color: white !important;
+    border-color: #d35400 !important;
+}
+
+.btn-dark {
+    background: #24292e !important;
+    color: white !important;
+    border-color: #1b1f23 !important;
+}
+
+.btn-green {
+    background: #4a4 !important;
+    color: white !important;
+    border-color: #383 !important;
+}
+
+.btn-red {
+    background: #a44 !important;
+    color: white !important;
+    border-color: #833 !important;
+}
+
+.btn-blue {
+    background: #007acc !important;
+    color: white !important;
+    border-color: #0062a3 !important;
+}
+
+.toolbar button:hover,
+.toolbar label:hover {
+    filter: brightness(1.1);
+    border-color: #777;
+}
+
+.toolbar button.primary-action {
+    background: #007acc;
+    border-color: #007acc;
+}
+
+.toolbar button.primary-action:hover {
+    background: #008be0;
+}
+
+/* Sidebar */
+.workspace {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+}
+
+.properties-panel {
+    width: 250px;
+    /* Sightly wider for larger text */
+    background: #252526;
+    border-right: 1px solid #333;
+    overflow-y: auto;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    flex-shrink: 0;
+}
+
+.loop-selector {
+    padding: 10px 6px;
+    background: #2d2d30;
+    border-radius: 4px;
+    border: 1px solid #3e3e42;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+}
+
+.loop-selector h3 {
+    color: #bbb;
+    font-size: 12px;
+    margin-bottom: 8px;
+}
+
+.loop-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.loop-btn {
+    width: 38px;
+    /* Increased from 32px */
+    height: 38px;
+    /* Increased from 32px */
+    border: 1px solid #555;
+    background: #444;
+    color: #fff;
+    cursor: pointer;
+    font-weight: bold;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    /* Increased from 14px */
+    transition: all 0.2s;
+}
+
+.loop-btn.active {
+    background: #007acc;
+    border-color: #007acc;
+}
+
+.loop-btn.populated {
+    background: #218838;
+    border-color: #1e7e34;
+}
+
+.loop-btn.empty {
+    background: rgba(0, 0, 0, 0.4);
+    border-color: #444;
+}
+
+/* Sheet navigation in sidebar */
+.sheet-management {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+/* Sheet navigation and action buttons (Uniform Style) */
+#btnPrevSheet,
+#btnNextSheet,
+#btnAddSheet,
+#btnDeleteSheet {
+    width: 100%;
+    height: 56px !important;
+    /* Forced static height for all 4 buttons */
+    padding: 10px 20px !important;
+    color: white;
+    border: 1px solid #555;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 8px;
+    transition: all 0.2s;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    font-size: 16px !important;
+}
+
+#btnPrevSheet,
+#btnNextSheet {
+    background: #3c3c3c;
+    font-size: 32px !important;
+    padding: 0 !important;
+    /* Managed by flexbox alignment to fit 32px text */
+}
+
+#btnAddSheet {
+    background: #007acc;
+}
+
+#btnDeleteSheet {
+    background: #a44;
+}
+
+#btnPrevSheet:hover,
+#btnNextSheet:hover,
+#btnAddSheet:hover,
+#btnDeleteSheet:hover {
+    filter: brightness(1.2);
+    border-color: #777;
+}
+
+/* Container for the big buttons and label */
+.sheet-nav {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+}
+
+#sheetLabel {
+    font-size: 18px;
+    /* Increased from 16px */
+    font-weight: bold;
+    color: #4cc2ff;
+    min-width: 120px;
+    text-align: center;
+}
+
+.properties-panel h3#currentLoopTitle {
+    color: #4cc2ff;
+    border-bottom: 2px solid #333;
+    font-size: 18px;
+    /* Increased from 14px */
+    margin-top: 16px;
+    text-transform: uppercase;
+}
+
+.prop-group {
+    background: #2d2d30;
+    border: 1px solid #3e3e42;
+    padding: 15px;
+    /* Increased padding */
+    border-radius: 4px;
+}
+
+.prop-group h4 {
+    color: #4cc2ff;
+    font-size: 15px;
+    /* Added font size */
+    margin-bottom: 12px;
+    border-bottom: 1px solid #444;
+    padding-bottom: 4px;
+    text-transform: uppercase;
+}
+
+.prop-row {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-bottom: 8px;
+}
+
+.prop-row label {
+    color: #999;
+    font-size: 14px;
+    /* Increased from 11px */
+    margin-bottom: 6px;
+}
+
+input[type="text"],
+input[type="color"],
+textarea,
+select {
+    background: #3c3c3c;
+    border: 1px solid #555;
+    color: #fff;
+    padding: 8px 12px;
+    /* Increased padding */
+    font-size: 16px;
+    /* Increased from 12px */
+    border-radius: 4px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+input[type="color"] {
+    width: 20px;
+    height: 20px;
+    padding: 0;
+    border: 1px solid #777;
+    cursor: pointer;
+    background: none;
+}
+
+.color-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 6px;
+}
+
+#btnResetColors {
+    width: 100%;
+    background: #666;
+    color: white;
+    border: none;
+    padding: 4px;
+    font-size: 10px;
+    cursor: pointer;
+    border-radius: 2px;
+    margin-top: 5px;
+}
+
+#btnResetColors:hover {
+    background: #777;
+}
+
+input[type="text"]:focus,
+textarea:focus,
+select:focus {
+    border-color: #007acc;
+    background: #252526;
+}
+
+.checkbox-group {
+    background: #333;
+}
+
+.checkbox-group label {
+    color: #ccc;
+}
+
+
+
+.canvas-wrapper {
+    position: relative;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+    background: white;
+}
+
+.equipment-bar {
+    background: #1e1e1e;
+    color: white;
+    padding: 70px 20px 20px 20px;
+    /* Space for Lazo label (70px top) and left padding */
+    display: flex;
+    gap: 20px;
+    /* Fixed 20px gap between all sections as requested */
+    align-items: flex-start;
+    height: 450px;
+    width: fit-content;
+    min-width: 100%;
+    position: relative;
+    flex-shrink: 0;
+    overflow-x: auto;
+    border-bottom: none;
+    box-sizing: border-box;
+}
+
+.equip-group {
+    gap: 15px;
+    width: fit-content;
+    min-width: 300px;
+    align-items: flex-start;
+    padding: 15px 25px;
+    flex-shrink: 0;
+    /* Important for flex layout */
+    transform: none;
+    background: #252526;
+    border: 1px solid #444;
+    border-radius: 8px;
+    box-sizing: border-box;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+}
+
+.equip-group .group-label {
+    align-self: flex-start;
+    /* Aligned to left */
+    margin-bottom: 12px;
+    color: #4cc2ff;
+    border-bottom: 3px solid #4cc2ff;
+    padding-bottom: 6px;
+    font-size: 24px;
+    /* Even bigger as requested */
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.equip-row {
+    display: flex;
+    gap: 12px;
+    width: 100%;
+    justify-content: flex-start;
+    align-items: flex-end;
+    min-height: 70px;
+}
+
+.inner-row {
+    display: flex;
+    gap: 3px;
+}
+
+.group-plc {
+    position: relative;
+}
+
+#plcDetailsWrapper {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 200px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+#plcDetailsWrapper label {
+    font-size: 14px;
+    color: #4cc2ff;
+    font-weight: bold;
+}
+
+#plcDetails {
+    height: 120px;
+    width: 100% !important;
+    font-size: 13px !important;
+    background: #1e1e1e !important;
+}
+
+/* Global rules now handle alignment */
+
+.equip-item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    align-items: flex-start;
+}
+
+.equip-item label {
+    font-size: 16px;
+    /* Doubled from 8px */
+    color: #aaa;
+    font-weight: bold;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.equip-item input[type="text"],
+.equip-item select,
+.equip-item textarea {
+    background: #333;
+    border: 1px solid #555;
+    color: white;
+    padding: 4px 8px;
+    font-size: 18px;
+    border-radius: 3px;
+    width: 480px;
+    /* Doubled from 240px */
+    text-align: left;
+}
+
+.equip-item-check {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    margin-top: 5px;
+}
+
+.equip-item-check label {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 14px;
+    color: #ccc;
+    cursor: pointer;
+}
+
+.equip-item-check input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    margin: 0;
+}
+
+#instCategory {
+    width: 240px !important;
+    /* Only Category at 240px as requested */
+}
+
+#instTag,
+#jbTag,
+#marshTag,
+#plcTag,
+#instType,
+#jbModule,
+#marshModule,
+#cable1Tag,
+#cable2Tag,
+#cableSysTag,
+#cableSysSection,
+#cable1Section,
+#cable1Len,
+#cable2Section,
+#cable2Len,
+#cableSysLen,
+#sigName1,
+#sigName2,
+#sigName3,
+#sigName4 {
+    width: 120px !important;
+    /* All identifiers and technical data at 120px */
+}
+
+#cable1Len,
+#cable2Len,
+#cableSysLen {
+    width: 60px !important;
+    /* Half width for numerical values (meters) */
+}
+
+#plcDetails {
+    width: 100% !important;
+    height: 80px !important;
+    font-size: 18px !important;
+    text-align: left !important;
+    padding: 8px !important;
+    box-sizing: border-box !important;
+}
+
+#btnPrevSheet,
+#btnNextSheet {
+    padding: 2px 5px !important;
+    font-size: 9px !important;
+    min-width: 50px;
+    height: 22px;
+}
+
+.equip-item input.mini {
+    width: 50px;
+}
+
+.equip-item-check {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+    padding-bottom: 3px;
+}
+
+.equip-item-check label {
+    font-size: 16px;
+    /* Doubled from 8-9px */
+    color: #eee;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.equip-item-check input[type="checkbox"] {
+    margin: 0;
+}
+
+.view-content {
+    display: none;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+}
+
+.view-content.active {
+    display: flex;
+}
+
+.active-view {
+    background: #007acc !important;
+    border-color: #009eff !important;
+}
+
+/* Cable List View Styling */
+.cable-list-container {
+    padding: 40px;
+    max-width: 1800px;
+    margin: 0 auto;
+    width: 100%;
+    color: #eee;
+}
+
+.list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    border-bottom: 2px solid #ed1c24;
+    padding-bottom: 15px;
+}
+
+.list-header h2 {
+    margin: 0;
+    font-size: 24px;
+    color: #fff;
+}
+
+.list-header button {
+    background: #007acc;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.list-body table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #252526;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    margin-bottom: 20px;
+}
+
+.list-header h2 {
+    margin: 0;
+    font-size: 24px;
+    color: #fff;
+    border-left: 4px solid #007acc;
+    padding-left: 15px;
+}
+
+.list-body th {
+    background: #333;
+    text-align: left;
+    padding: 12px 15px;
+    font-size: 22px;
+    text-transform: uppercase;
+    color: #aaa;
+    border-bottom: 2px solid #444;
+}
+
+.list-body td {
+    padding: 12px 15px;
+    border-bottom: 1px solid #333;
+    font-size: 26px;
+    color: #eee;
+}
+
+.list-body tr:last-child td {
+    border-bottom: none;
+}
+
+.list-body tr:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.cable-table-detailed td {
+    font-family: 'Consolas', monospace;
+    color: #4cc2ff;
+}
+
+.cable-table-detailed td:first-child {
+    color: #fff;
+    font-weight: bold;
+}
+
+/* Removed conflicting 60px rule */
+.inner-row-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 4px;
+    margin-top: 4px;
+    justify-items: center;
+    /* Center inputs horizontally in their grid cell */
+    align-items: center;
+    /* Center inputs vertically */
+    width: 100%;
+    /* Ensure grid takes full width to center correctly */
+}
+
+.inner-row-grid.two-cols {
+    grid-template-columns: repeat(2, 1fr);
+}
+
+.inner-row-grid.four-cols {
+    grid-template-columns: repeat(4, 1fr);
+}
+
+.inner-row-grid.eight-cols {
+    grid-template-columns: repeat(8, 1fr);
+}
+
+.inner-row-grid.nine-cols {
+    grid-template-columns: repeat(9, 1fr);
+}
+
+.mini {
+    width: 100%;
+    padding: 2px !important;
+    text-align: center;
+}
+
+/* Canvas Area */
+.viewport {
+    flex: 1;
+    background: #1e1e1e;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow: auto;
+    padding: 20px;
+}
+
+/* Scrollbars */
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: #1e1e1e;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #444;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}

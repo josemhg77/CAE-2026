@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loop Sheet Generator - CAD</title>
+    <link rel="stylesheet" href="style.css?v=2">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Top Toolbar -->
+        <header class="toolbar">
+            <div class="logo">CAE 2026 <span class="version">v2.0.2</span> <span class="update-date">05/03/2026</span>
+            </div>
+
+            <div class="toolbar-actions">
+                <div class="toolbar-group">
+                    <span class="group-label">PROYECTO</span>
+                    <div class="toolbar-buttons">
+                        <button id="btnNew">Nuevo</button>
+                        <button id="btnSave">Guardar</button>
+                        <label for="fileLoad" class="btn-label">Cargar</label>
+                        <input type="file" id="fileLoad" accept=".json" style="display: none;">
+                    </div>
+                    <div class="project-path-display">c:\loop-diagram-generator</div>
+                </div>
+
+
+                <div class="toolbar-group">
+                    <span class="group-label">LAZOS</span>
+                    <div class="toolbar-buttons">
+                        <button id="btnDuplicateLoop" class="btn-green">Duplicar</button>
+                        <button id="btnClearLoop" class="btn-red">Borrar</button>
+                    </div>
+                </div>
+
+                <div class="toolbar-group">
+                    <span class="group-label">NUMERACIÓN</span>
+                    <select id="cableNaming" style="width: auto; background: #444; color: white; border: none;">
+                        <option value="TAG">Por Tag</option>
+                        <option value="AUTO">Automática</option>
+                    </select>
+                </div>
+
+                <div class="toolbar-group">
+                    <span class="group-label">EXPORTACIÓN</span>
+                    <div class="toolbar-buttons">
+                        <button id="btnExportPDF">PDF</button>
+                        <button id="btnExportDXF">DXF</button>
+                    </div>
+                </div>
+
+                <div class="toolbar-group">
+                    <span class="group-label">VISTA</span>
+                    <div class="toolbar-buttons">
+                        <button id="btnViewDiagram" class="active-view">Diagrama</button>
+                        <button id="btnViewCableList" class="btn-blue">Lista Cables</button>
+                    </div>
+                </div>
+
+                <div class="toolbar-group">
+                    <span class="group-label">PARÁMETROS</span>
+                    <div class="toolbar-buttons">
+                        <button id="btnExportCSV">Exportar Hoja (.csv)</button>
+                        <label for="fileLoadCSV" class="btn-label btn-blue">Importar
+                            (.csv)</label>
+                        <input type="file" id="fileLoadCSV" accept=".csv" style="display: none;">
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="workspace">
+            <!-- Sidebar Properties Panel -->
+            <aside class="properties-panel" id="sidebar">
+                <!-- Project Properties -->
+                <div class="prop-group">
+                    <h4>Datos del Proyecto</h4>
+                    <div class="prop-row">
+                        <label>Nombre del Proyecto</label>
+                        <input type="text" id="projectName" placeholder="Proyecto sin nombre">
+                    </div>
+                </div>
+
+
+                <!-- Sheet management -->
+                <div class="prop-group">
+                    <h4>Gestión de Hojas</h4>
+                    <div class="sheet-nav">
+                        <button id="btnPrevSheet">Anterior</button>
+                        <span id="sheetLabel">Hoja 1 / 1</span>
+                        <button id="btnNextSheet">Siguiente</button>
+                    </div>
+                    <button id="btnAddSheet">+ Añadir Nueva Hoja</button>
+                    <button id="btnDeleteSheet">× Borrar Hoja Actual</button>
+                </div>
+
+                <!-- Loop Selection -->
+                <div class="prop-group">
+                    <h4>Seleccionar Lazo (Hoja Actual)</h4>
+                    <div class="loop-selector" id="loopButtons">
+                        <!-- Botones 1-8 generados por JS -->
+                    </div>
+                </div>
+
+                <div style="height: 50px;"></div>
+            </aside>
+
+            <!-- Main Viewport -->
+            <main class="viewport">
+                <!-- Diagram View -->
+                <div id="diagramView" class="view-content active">
+                    <!-- Equipment Bar (Independent of Zoom) -->
+                    <div class="equipment-bar">
+                        <div id="activeLoopLabel"
+                            style="position: absolute; top: 15px; left: 20px; font-weight: bold; color: #4cc2ff; font-size: 28px;">
+                            Lazo: 1</div>
+                        <div class="equip-group group-inst">
+                            <span class="group-label">INSTRUMENTO</span>
+                            <div class="equip-row">
+                                <div class="equip-item"><label>INST TAG</label><input type="text" id="instTag"
+                                        maxlength="15" title="Tag del instrumento (ej: LT-100). Máx 15 car."></div>
+                                <div class="equip-item"><label>TIPO</label>
+                                    <select id="instType" title="Tipo de instrumento">
+                                        <option value="Nivel">Nivel</option>
+                                        <option value="Caudal">Caudal</option>
+                                        <option value="Presión">Presión</option>
+                                        <option value="Temperatura">Temperatura</option>
+                                        <option value="Analizador">Analizador</option>
+                                        <option value="Válvula">Válvula</option>
+                                        <option value="Motor">Motor</option>
+                                    </select>
+                                </div>
+                                <div class="equip-item"><label>CATEGORÍA</label>
+                                    <select id="instCategory" title="Categoría de instrumento">
+                                        <option value="STD">Estándar (2 hilos)</option>
+                                        <option value="3W">3 Hilos</option>
+                                        <option value="VALVE">Válvula (6 hilos)</option>
+                                        <option value="MOTOR">Motor (8 hilos)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="equip-row">
+                                <div class="equip-item"><label>BORNAS</label>
+                                    <div id="instTermContainer" class="inner-row-grid">
+                                        <input type="text" id="instTerm1" class="mini" maxlength="4" placeholder="1">
+                                        <input type="text" id="instTerm2" class="mini" maxlength="4" placeholder="2">
+                                        <input type="text" id="instTerm3" class="mini" maxlength="4" placeholder="3">
+                                        <input type="text" id="instTerm4" class="mini" maxlength="4" placeholder="4">
+                                        <input type="text" id="instTerm5" class="mini" maxlength="4" placeholder="5">
+                                        <input type="text" id="instTerm6" class="mini" maxlength="4" placeholder="6">
+                                        <input type="text" id="instTerm7" class="mini" maxlength="4" placeholder="7">
+                                        <input type="text" id="instTerm8" class="mini" maxlength="4" placeholder="8">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="equip-row cable-row">
+                                <div class="equip-item"><label>CABLE 1</label><input type="text" id="cable1Tag"
+                                        maxlength="20" placeholder="W-Tag"
+                                        title="Nombre del cable (ej: W-LT100). Máx 20 car."></div>
+                                <div class="equip-item"><label>SECCIÓN</label>
+                                    <input type="text" id="cable1Section" title="Sección del cable (ej: 2x1.0mm²).">
+                                </div>
+                                <div class="equip-item"><label>LONG. (m)</label>
+                                    <input type="text" id="cable1Len" title="Longitud del cable en metros.">
+                                </div>
+                            </div>
+                            <div class="equip-row">
+                                <div class="equip-item-check"><label><input type="checkbox" id="cable1Shield"
+                                            title="Malla (Shield)">Malla (M)</label><label><input type="checkbox"
+                                            id="cable1Armor" title="Armadura (Armor)">Armadura (A)</label></div>
+                            </div>
+                        </div>
+
+                        <div class="equip-group group-jb" id="jbFields">
+                            <span class="group-label">CAJA</span>
+                            <div class="equip-row">
+                                <div class="equip-item">
+                                    <div style="display: flex; align-items: center; gap: 5px;">
+                                        <input type="checkbox" id="jbEnabled"
+                                            title="Activar/Desactivar Caja de Conexiones">
+                                        <label for="jbEnabled" style="margin: 0; cursor: pointer;">JB TAG</label>
+                                    </div>
+                                    <input type="text" id="jbTag" maxlength="15"
+                                        title="Tag de la caja de conexiones (ej: JB-01). Máx 15 car.">
+                                </div>
+                                <div class="equip-item"><label>BORNERO</label><input type="text" id="jbModule"
+                                        maxlength="10" title="Nombre del bornero/regleta (ej: X1). Máx 10 car."></div>
+                            </div>
+                            <div class="equip-row">
+                                <div class="equip-item"><label>BORNAS (+/-/S)</label>
+                                    <div class="inner-row"><input type="text" id="jbTermPos" class="mini" maxlength="4"
+                                            title="Borne positivo. Máx 4 car."><input type="text" id="jbTermNeg"
+                                            class="mini" maxlength="4" title="Borne negativo. Máx 4 car."><input
+                                            type="text" id="jbTermSh" class="mini" maxlength="4"
+                                            title="Borne de malla (PE). Máx 4 car."></div>
+                                </div>
+                            </div>
+                            <div id="cable2Group" class="equip-row cable-row">
+                                <div class="equip-item"><label>CABLE 2</label><input type="text" id="cable2Tag"
+                                        maxlength="20" title="Nombre del cable (ej: W-JB01). Máx 20 car."></div>
+                                <div class="equip-item"><label>SECCIÓN</label>
+                                    <input type="text" id="cable2Section" title="Sección del cable multipar.">
+                                </div>
+                                <div class="equip-item"><label>LONG. (m)</label>
+                                    <input type="text" id="cable2Len" title="Longitud del cable en metros.">
+                                </div>
+                            </div>
+                            <div class="equip-row">
+                                <div class="equip-item-check"><label><input type="checkbox" id="cable2Shield"
+                                            title="Malla (Shield)">Malla (M)</label><label><input type="checkbox"
+                                            id="cable2Armor" title="Armadura (Armor)">Armadura (A)</label></div>
+                            </div>
+                        </div>
+
+                        <div class="equip-group group-marsh" id="marshFields">
+                            <span class="group-label">MARSHALLING</span>
+                            <div class="equip-row">
+                                <div class="equip-item">
+                                    <div style="display: flex; align-items: center; gap: 5px;">
+                                        <input type="checkbox" id="marshEnabled"
+                                            title="Activar/Desactivar Armario Marshalling">
+                                        <label for="marshEnabled" style="margin: 0; cursor: pointer;">MARSH TAG</label>
+                                    </div>
+                                    <input type="text" id="marshTag" maxlength="15"
+                                        title="Tag del armario marshalling. Máx 15 car.">
+                                </div>
+                                <div class="equip-item"><label>BORNERO</label><input type="text" id="marshModule"
+                                        maxlength="10" title="Nombre del bornero/regleta (ej: X12). Máx 10 car."></div>
+                            </div>
+                            <div class="equip-row">
+                                <div class="equip-item"><label>BORNAS (+/-/S)</label>
+                                    <div class="inner-row"><input type="text" id="marshTermInPos" class="mini"
+                                            maxlength="4" title="Borne entrada (+). Máx 4 car."><input type="text"
+                                            id="marshTermInNeg" class="mini" maxlength="4"
+                                            title="Borne entrada (-). Máx 4 car."><input type="text" id="marshTermInSh"
+                                            class="mini" maxlength="4" title="Borne de malla (PE). Máx 4 car."></div>
+                                </div>
+                            </div>
+                            <div id="cableSysGroup" class="equip-row cable-row">
+                                <div class="equip-item"><label>CABLE 3</label><input type="text" id="cableSysTag"
+                                        maxlength="20" title="Nombre del cable al PLC. Máx 20 car."></div>
+                                <div class="equip-item"><label>SECCIÓN</label>
+                                    <input type="text" id="cableSysSection" title="Sección del cable al sistema.">
+                                </div>
+                                <div class="equip-item"><label>LONG. (m)</label>
+                                    <input type="text" id="cableSysLen" title="Longitud del cable en metros.">
+                                </div>
+                            </div>
+                            <div class="equip-row">
+                                <div class="equip-item-check"><label><input type="checkbox" id="cableSysShield"
+                                            title="Malla (Shield)">Malla (M)</label><label><input type="checkbox"
+                                            id="cableSysArmor" title="Armadura (Armor)">Armadura (A)</label></div>
+                            </div>
+                        </div>
+
+                        <div class="equip-group group-plc">
+                            <span class="group-label">CONTROL</span>
+                            <div id="plcDetailsWrapper">
+                                <label>DETALLES PLC</label>
+                                <textarea id="plcDetails" title="Información adicional del lazo en el PLC."></textarea>
+                            </div>
+                            <div class="equip-row">
+                                <div class="equip-item"><label>PLC TAG</label><input type="text" id="plcTag"
+                                        maxlength="15" title="Tag del PLC o Armario de Control. Máx 15 car."></div>
+                            </div>
+                            <div class="equip-row">
+                                <div class="equip-item">
+                                    <label>BORNAS PLC (ENTRADA)</label>
+                                    <div class="inner-row-grid nine-cols">
+                                        <input type="text" id="plcTerm1" placeholder="1" class="mini">
+                                        <input type="text" id="plcTerm2" placeholder="2" class="mini">
+                                        <input type="text" id="plcTerm3" placeholder="3" class="mini">
+                                        <input type="text" id="plcTerm4" placeholder="4" class="mini">
+                                        <input type="text" id="plcTerm5" placeholder="5" class="mini">
+                                        <input type="text" id="plcTerm6" placeholder="6" class="mini">
+                                        <input type="text" id="plcTerm7" placeholder="7" class="mini">
+                                        <input type="text" id="plcTerm8" placeholder="8" class="mini">
+                                        <input type="text" id="plcTermPe" class="mini" maxlength="4" value="PE"
+                                            title="Terminal de tierra en PLC.">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="equip-row">
+                                <div class="equip-item"><label>DESC. SEÑALES (LOGIC)</label>
+                                    <div class="inner-row-grid two-cols">
+                                        <!-- Changed to two-cols to fit left layout better -->
+                                        <input type="text" id="sigName1" placeholder="SIG1" title="Señal 1">
+                                        <input type="text" id="sigName2" placeholder="SIG2" title="Señal 2">
+                                        <input type="text" id="sigName3" placeholder="SIG3" title="Señal 3">
+                                        <input type="text" id="sigName4" placeholder="SIG4" title="Señal 4">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="canvas-wrapper">
+                        <canvas id="loopCanvas"></canvas>
+                    </div>
+                </div> <!-- End #diagramView -->
+
+                <!-- Cable List View -->
+                <div id="cableListView" class="view-content">
+                    <div class="cable-list-container">
+                        <div class="list-header">
+                            <h2>Lista de Cables</h2>
+                            <button id="btnExportListCSV_New">Exportar Lista (.csv)</button>
+                        </div>
+                        <div class="list-body">
+                            <table id="cableTableNew" class="cable-table-detailed">
+                                <thead>
+                                    <tr>
+                                        <th>Lazo</th>
+                                        <th>Tag Cable</th>
+                                        <th>Tipo / Sección</th>
+                                        <th>Origen</th>
+                                        <th>Destino</th>
+                                        <th>Metros</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+
+                            <h3 style="margin-top: 40px; border-bottom: 1px solid #444; padding-bottom: 10px;">
+                                Resumen por Tipos</h3>
+                            <table id="summaryTableNew">
+                                <thead>
+                                    <tr>
+                                        <th>Sección / Tipo de Cable</th>
+                                        <th>Metros Totales (Suma)</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div> <!-- End #cableListView -->
+
+                <datalist id="instTypeOptions">
+                    <option value="Nivel">
+                    <option value="Presión">
+                    <option value="Caudal">
+                    <option value="Temperatura">
+                    <option value="Analizador">
+                    <option value="Válvula">
+                    <option value="Motor">
+                </datalist>
+            </main> <!-- End .viewport -->
+        </div> <!-- End .workspace -->
+    </div> <!-- End .app-container -->
+    <script src="script.js"></script>
+</body>
+
+</html>
